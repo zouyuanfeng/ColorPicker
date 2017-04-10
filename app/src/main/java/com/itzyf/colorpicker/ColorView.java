@@ -12,6 +12,7 @@ import android.graphics.Shader;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -70,8 +71,14 @@ public class ColorView extends View {
         mSwipeBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.swipe);
         mSwipeRadius = lastSatX = mSwipeBitmap.getWidth() / 2;
 
-        mColorHeight = DensityUtils.dp2px(context, 10);
-        marginTopAndBottom = DensityUtils.dp2px(context, 10);
+        mColorHeight = dp2px(context, 10);
+        marginTopAndBottom = dp2px(context, 10);
+    }
+
+
+    public int dp2px(Context context, float dpVal) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                dpVal, context.getResources().getDisplayMetrics());
     }
 
     @Override
