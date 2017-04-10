@@ -185,10 +185,10 @@ public class ColorView extends View {
             return super.onTouchEvent(event);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (event.getY() < mSwipeRadius + marginTopAndBottom * 2) { //色相区域
+                if (event.getY() < (5 * mSwipeRadius + 2 * marginTopAndBottom) / 2) { //色相区域
                     clickPanel = 1;
                     updateHueDate(x);
-                } else if (event.getY() > 3 * mSwipeRadius && event.getY() < 4 * mSwipeRadius + 2 * marginTopAndBottom) {
+                } else if (event.getY() < 5 * mSwipeRadius + 2 * marginTopAndBottom) {
                     clickPanel = 2;
                     mSwipeSatCx = lastSatX = x;
                     updateSatDate();
