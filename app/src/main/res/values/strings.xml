@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">颜色调节</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="button_label">OK</string>
+    <string name="pref_name">Pick a color</string>
+    <string name="pref_summary">DialogPreference with Color Picker.</string>
+</resources>
