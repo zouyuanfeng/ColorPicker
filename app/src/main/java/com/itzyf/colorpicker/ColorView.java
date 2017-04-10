@@ -34,9 +34,9 @@ public class ColorView extends View {
 
     private onSelectColorListener mOnSelectColorListener;
 
-    private static final int mColorHeight = 20;
+    private int mColorHeight;
     private float mSwipeRadius;
-    private int marginTopAndBottom = 20;
+    private int marginTopAndBottom;
 
     /**
      * 滑块的圆心x
@@ -70,6 +70,8 @@ public class ColorView extends View {
         mSwipeBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.swipe);
         mSwipeRadius = lastSatX = mSwipeBitmap.getWidth() / 2;
 
+        mColorHeight = DensityUtils.dp2px(context, 10);
+        marginTopAndBottom = DensityUtils.dp2px(context, 10);
     }
 
     @Override
@@ -144,9 +146,10 @@ public class ColorView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+        int measureWidth = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
+        setMeasuredDimension(measureWidth,
                 measureHeight(heightMeasureSpec));
-        mWidth = getWidth();
+        mWidth = measureWidth;
     }
 
 

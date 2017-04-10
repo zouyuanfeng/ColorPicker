@@ -15,6 +15,7 @@
 
     <com.itzyf.colorpicker.ColorView
         android:id="@+id/colorView"
+        android:background="@color/colorAccent"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
