@@ -22,6 +22,7 @@ import android.view.View;
  */
 
 public class ColorView extends View {
+    private Context mContext;
     private LinearGradient linearGradient = null;
     private Paint mHuePaint = null;
     private Paint mSaturationPaint = null;
@@ -64,6 +65,7 @@ public class ColorView extends View {
     }
 
     private void init(Context context) {
+        this.mContext = context;
         mHuePaint = new Paint();
         mSaturationPaint = new Paint();
         mSwipePaint = new Paint();
@@ -71,15 +73,21 @@ public class ColorView extends View {
         mSwipeBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.swipe);
         mSwipeRadius = lastSatX = mSwipeBitmap.getWidth() / 2;
 
-        mColorHeight = dp2px(context, 10);
-        marginTopAndBottom = dp2px(context, 10);
+        mColorHeight = dp2px(10);
+        marginTopAndBottom = dp2px(10);
     }
 
 
-    public int dp2px(Context context, float dpVal) {
+    public int dp2px(float dpVal) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                dpVal, context.getResources().getDisplayMetrics());
+                dpVal, mContext.getResources().getDisplayMetrics());
     }
+
+    public float px2dp(int pxVal) {
+        final float scale = mContext.getResources().getDisplayMetrics().density;
+        return (pxVal / scale);
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -161,16 +169,11 @@ public class ColorView extends View {
 
 
     private int measureHeight(int heightMeasureSpec) {
-        int result;
+        int result = (int) (5 * mSwipeRadius + 2 * marginTopAndBottom);
         int specMode = MeasureSpec.getMode(heightMeasureSpec);
         int specSize = MeasureSpec.getSize(heightMeasureSpec);
-        if (specMode == MeasureSpec.EXACTLY) {
-            result = specSize;
-        } else {
-            result = (int) (5 * mSwipeRadius + 2 * marginTopAndBottom);
-            if (specMode == MeasureSpec.AT_MOST) {
-                result = Math.min(result, specSize);
-            }
+        if (specMode == MeasureSpec.EXACTLY && specSize < result) {
+            throw new IllegalArgumentException("Height is too small to display completely , the height needs to be greater than " + px2dp(result) + "dp !");
         }
         return result;
     }
