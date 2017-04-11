@@ -136,7 +136,7 @@ public class ColorView extends View {
     private int[] buildValueColorArray() {
         int[] value = new int[11];
         for (int i = 0; i < value.length; i++) {
-            value[i] = Color.HSVToColor(new float[]{colorHSV[0], (float) i / 10, 1f});
+            value[i] = Color.HSVToColor(new float[]{colorHSV[0], 1f, (float) i / 10});
         }
         return value;
     }
