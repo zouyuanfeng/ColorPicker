@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.itzyf.colorpicker.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_color"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_color_lens_white_24dp"
+        android:title="@string/action_color"
+        app:showAsAction="always" />
 </menu>

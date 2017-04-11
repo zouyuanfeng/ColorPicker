@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">颜色调节</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_color">Color</string>
 
     <string name="button_label">OK</string>
     <string name="pref_name">Pick a color</string>
     <string name="pref_summary">DialogPreference with Color Picker.</string>
+
+    <string name="hsv" formatted="false">色相（H）是色彩的基本属性，就是平常所说的颜色名称，如红色、黄色等。\n饱和度（S）是指色彩的纯度，越高色彩越纯，低则逐渐变灰，取0–100%的数值。\n明度（V），亮度（L），取0–100%。</string>
 </resources>

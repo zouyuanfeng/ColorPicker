@@ -26,7 +26,6 @@ public class ColorView extends View {
     private LinearGradient linearGradient = null;
     private Paint mHuePaint = null;
     private Paint mSaturationPaint = null;
-    //    private Paint mPaintColor;
     private RectF mHueRectF = null;
     private RectF mSaturationRectF = null;
     private int mWidth;
@@ -40,13 +39,12 @@ public class ColorView extends View {
     private float mSwipeRadius;
     private int marginTopAndBottom;
 
+    private float[] colorHSV = new float[]{0f, 1f, 0f};
     /**
      * 滑块的圆心x
      */
     private float mSwipeHueCx = 0;
     private float mSwipeSatCx = 0;
-
-    private float mHue = 0f;
 
     public ColorView(Context context) {
         super(context);
@@ -112,15 +110,15 @@ public class ColorView extends View {
      * @param canvas
      */
     private void drawHuePanel(Canvas canvas) {
+        //绘制颜色条
+        if (mHueRectF == null)
+            mHueRectF = new RectF(mSwipeRadius, mSwipeRadius - mColorHeight / 2 + marginTopAndBottom, mWidth - mSwipeRadius, mSwipeRadius + mColorHeight / 2 + marginTopAndBottom);
         if (linearGradient == null) {
-            linearGradient = new LinearGradient(0, 0, mWidth, 0, buildHueColorArray(), null,
+            linearGradient = new LinearGradient(mHueRectF.left, mHueRectF.top, mHueRectF.right, mHueRectF.top, buildHueColorArray(), null,
                     Shader.TileMode.CLAMP);
             //设置渲染器
             mHuePaint.setShader(linearGradient);
         }
-        //绘制颜色条
-        if (mHueRectF == null)
-            mHueRectF = new RectF(mSwipeRadius, mSwipeRadius - mColorHeight / 2 + marginTopAndBottom, mWidth - mSwipeRadius, mSwipeRadius + mColorHeight / 2 + marginTopAndBottom);
         canvas.drawRoundRect(mHueRectF, 15, 15, mHuePaint);
         //绘制滑块
         if (mSwipeHueCx < mSwipeRadius)
@@ -128,6 +126,19 @@ public class ColorView extends View {
         else if (mSwipeHueCx > mWidth - mSwipeRadius)
             mSwipeHueCx = mWidth - mSwipeRadius;
         canvas.drawBitmap(mSwipeBitmap, mSwipeHueCx - mSwipeRadius, marginTopAndBottom, mSwipePaint);
+    }
+
+    /**
+     * 饱和度数组
+     *
+     * @return
+     */
+    private int[] buildSatColorArray() {
+        int[] sat = new int[11];
+        for (int i = 0; i < sat.length; i++) {
+            sat[i] = Color.HSVToColor(new float[]{colorHSV[0], 1f, (float) i / 10});
+        }
+        return sat;
     }
 
     /**
@@ -141,11 +152,9 @@ public class ColorView extends View {
                     mWidth - mSwipeRadius, mSwipeRadius + mColorHeight / 2 + 3 * mSwipeRadius + marginTopAndBottom);
         final RectF rect = mSaturationRectF;
 
-        //HSV转化为RGB
-        int rgb = Color.HSVToColor(new float[]{mHue, 1f, 1f});
-        //饱和线性渲染器
+        //饱和度线性渲染器
         LinearGradient mSaturationShader = new LinearGradient(rect.left, rect.top, rect.right, rect.top,
-                0xff000000, rgb, Shader.TileMode.CLAMP);
+                buildSatColorArray(), null, Shader.TileMode.CLAMP);
 
         mSaturationPaint.setShader(mSaturationShader);
 
@@ -219,22 +228,21 @@ public class ColorView extends View {
 
     private void updateHueDate(float x) {
         mSwipeHueCx = x;
-        mHue = 360 * (x - mSwipeRadius) / (mWidth - mSwipeBitmap.getWidth());
+        colorHSV[0] = 360 * (x - mSwipeRadius) / (mWidth - mSwipeBitmap.getWidth());
         updateSatDate();
         invalidate();
     }
 
     private void updateSatDate() {
-        int rgb = Color.HSVToColor(new float[]{mHue, 1f, 1f});
-        int colorFrom = getColorFrom(0xff000000, rgb, (lastSatX - mSwipeRadius) / (mWidth - mSwipeBitmap.getWidth()));
+        colorHSV[2] = (lastSatX - mSwipeRadius) / (mWidth - mSwipeBitmap.getWidth());
         if (mOnSelectColorListener != null) {
-            mOnSelectColorListener.onSelectColor(colorFrom);
+            mOnSelectColorListener.onSelectColor(Color.HSVToColor(colorHSV));
         }
     }
 
     public void setOnSelectColorListener(onSelectColorListener mListener) {
         this.mOnSelectColorListener = mListener;
-        mListener.onSelectColor(0xff000000); //初始
+        mListener.onSelectColor(Color.HSVToColor(colorHSV)); //初始
     }
 
 
@@ -242,25 +250,8 @@ public class ColorView extends View {
         void onSelectColor(@ColorInt int color);
     }
 
-    /**
-     * 取两个颜色间的渐变区间 中的某一点的颜色
-     *
-     * @param startColor
-     * @param endColor
-     * @param radio
-     * @return
-     */
-    public int getColorFrom(int startColor, int endColor, float radio) {
-        int redStart = Color.red(startColor);
-        int blueStart = Color.blue(startColor);
-        int greenStart = Color.green(startColor);
-        int redEnd = Color.red(endColor);
-        int blueEnd = Color.blue(endColor);
-        int greenEnd = Color.green(endColor);
-
-        int red = (int) (redStart + ((redEnd - redStart) * radio + 0.5));
-        int greed = (int) (greenStart + ((greenEnd - greenStart) * radio + 0.5));
-        int blue = (int) (blueStart + ((blueEnd - blueStart) * radio + 0.5));
-        return Color.argb(255, red, greed, blue);
+    @Override
+    public int getSolidColor() {
+        return Color.HSVToColor(colorHSV);
     }
 }
