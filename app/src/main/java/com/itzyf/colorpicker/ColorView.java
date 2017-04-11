@@ -25,9 +25,9 @@ public class ColorView extends View {
     private Context mContext;
     private LinearGradient linearGradient = null;
     private Paint mHuePaint = null;
-    private Paint mSaturationPaint = null;
+    private Paint mValuePaint = null;
     private RectF mHueRectF = null;
-    private RectF mSaturationRectF = null;
+    private RectF mValueRectF = null;
     private int mWidth;
 
     private Paint mSwipePaint;
@@ -44,7 +44,7 @@ public class ColorView extends View {
      * 滑块的圆心x
      */
     private float mSwipeHueCx = 0;
-    private float mSwipeSatCx = 0;
+    private float mSwipeValueCx = 0;
 
     public ColorView(Context context) {
         super(context);
@@ -65,11 +65,11 @@ public class ColorView extends View {
     private void init(Context context) {
         this.mContext = context;
         mHuePaint = new Paint();
-        mSaturationPaint = new Paint();
+        mValuePaint = new Paint();
         mSwipePaint = new Paint();
         mSwipePaint.setAntiAlias(true);
         mSwipeBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.swipe);
-        mSwipeRadius = lastSatX = mSwipeBitmap.getWidth() / 2;
+        mSwipeRadius = lastValueX = mSwipeBitmap.getWidth() / 2;
 
         mColorHeight = dp2px(10);
         marginTopAndBottom = dp2px(10);
@@ -92,8 +92,8 @@ public class ColorView extends View {
         super.onDraw(canvas);
         //绘制色相选择区域
         drawHuePanel(canvas);
-        //绘制饱和度颜色条
-        drawSaturationPanel(canvas);
+        //绘制明度颜色条
+        drawValuePanel(canvas);
     }
 
     private int[] buildHueColorArray() {
@@ -129,42 +129,42 @@ public class ColorView extends View {
     }
 
     /**
-     * 饱和度数组
+     * 明度数组
      *
      * @return
      */
-    private int[] buildSatColorArray() {
-        int[] sat = new int[11];
-        for (int i = 0; i < sat.length; i++) {
-            sat[i] = Color.HSVToColor(new float[]{colorHSV[0], 1f, (float) i / 10});
+    private int[] buildValueColorArray() {
+        int[] value = new int[11];
+        for (int i = 0; i < value.length; i++) {
+            value[i] = Color.HSVToColor(new float[]{colorHSV[0], (float) i / 10, 1f});
         }
-        return sat;
+        return value;
     }
 
     /**
-     * 绘制饱和度选择区域
+     * 绘制明度选择区域
      *
      * @param canvas
      */
-    private void drawSaturationPanel(Canvas canvas) {
-        if (mSaturationRectF == null)
-            mSaturationRectF = new RectF(mSwipeRadius, mSwipeRadius - mColorHeight / 2 + 3 * mSwipeRadius + marginTopAndBottom,
+    private void drawValuePanel(Canvas canvas) {
+        if (mValueRectF == null)
+            mValueRectF = new RectF(mSwipeRadius, mSwipeRadius - mColorHeight / 2 + 3 * mSwipeRadius + marginTopAndBottom,
                     mWidth - mSwipeRadius, mSwipeRadius + mColorHeight / 2 + 3 * mSwipeRadius + marginTopAndBottom);
-        final RectF rect = mSaturationRectF;
+        final RectF rect = mValueRectF;
 
-        //饱和度线性渲染器
-        LinearGradient mSaturationShader = new LinearGradient(rect.left, rect.top, rect.right, rect.top,
-                buildSatColorArray(), null, Shader.TileMode.CLAMP);
+        //明度线性渲染器
+        LinearGradient mValueShader = new LinearGradient(rect.left, rect.top, rect.right, rect.top,
+                buildValueColorArray(), null, Shader.TileMode.CLAMP);
 
-        mSaturationPaint.setShader(mSaturationShader);
+        mValuePaint.setShader(mValueShader);
 
-        canvas.drawRoundRect(mSaturationRectF, 15, 15, mSaturationPaint);
+        canvas.drawRoundRect(mValueRectF, 15, 15, mValuePaint);
         //绘制滑块
-        if (mSwipeSatCx < mSwipeRadius)
-            mSwipeSatCx = mSwipeRadius;
-        else if (mSwipeSatCx > mWidth - mSwipeRadius)
-            mSwipeSatCx = mWidth - mSwipeRadius;
-        canvas.drawBitmap(mSwipeBitmap, mSwipeSatCx - mSwipeRadius, 3 * mSwipeRadius + marginTopAndBottom, mSwipePaint);
+        if (mSwipeValueCx < mSwipeRadius)
+            mSwipeValueCx = mSwipeRadius;
+        else if (mSwipeValueCx > mWidth - mSwipeRadius)
+            mSwipeValueCx = mWidth - mSwipeRadius;
+        canvas.drawBitmap(mSwipeBitmap, mSwipeValueCx - mSwipeRadius, 3 * mSwipeRadius + marginTopAndBottom, mSwipePaint);
 
     }
 
@@ -188,7 +188,7 @@ public class ColorView extends View {
     }
 
     private int clickPanel = -1;
-    private float lastSatX;
+    private float lastValueX;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -202,8 +202,8 @@ public class ColorView extends View {
                     updateHueDate(x);
                 } else if (event.getY() < 5 * mSwipeRadius + 2 * marginTopAndBottom) {
                     clickPanel = 2;
-                    mSwipeSatCx = lastSatX = x;
-                    updateSatDate();
+                    mSwipeValueCx = lastValueX = x;
+                    updateValueDate();
                     invalidate();
                 } else return super.onTouchEvent(event);
 
@@ -212,8 +212,8 @@ public class ColorView extends View {
                 if (clickPanel == 1) {
                     updateHueDate(x);
                 } else if (clickPanel == 2) {
-                    mSwipeSatCx = lastSatX = x;
-                    updateSatDate();
+                    mSwipeValueCx = lastValueX = x;
+                    updateValueDate();
                     invalidate();
                 } else return super.onTouchEvent(event);
                 break;
@@ -229,12 +229,12 @@ public class ColorView extends View {
     private void updateHueDate(float x) {
         mSwipeHueCx = x;
         colorHSV[0] = 360 * (x - mSwipeRadius) / (mWidth - mSwipeBitmap.getWidth());
-        updateSatDate();
+        updateValueDate();
         invalidate();
     }
 
-    private void updateSatDate() {
-        colorHSV[2] = (lastSatX - mSwipeRadius) / (mWidth - mSwipeBitmap.getWidth());
+    private void updateValueDate() {
+        colorHSV[2] = (lastValueX - mSwipeRadius) / (mWidth - mSwipeBitmap.getWidth());
         if (mOnSelectColorListener != null) {
             mOnSelectColorListener.onSelectColor(Color.HSVToColor(colorHSV));
         }
