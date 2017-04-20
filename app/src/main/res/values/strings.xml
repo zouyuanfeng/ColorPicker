@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">颜色调节</string>
+    <string name="app_name">仿网易云音乐自选颜色</string>
     <string name="action_color">Color</string>
 
     <string name="button_label">OK</string>
